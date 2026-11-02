@@ -11,11 +11,12 @@ let
         ];
       }
       ''
-        mkdir -p $out
-        tar xf ${stage3} -C $out ./usr/bin/eselect ./usr/share/eselect
-        mv $out/usr/* $out/
-        rmdir $out/usr
-        substituteInPlace $out/bin/eselect --replace-fail '/usr/share/eselect' "$out/share/eselect"
+            mkdir -p $out
+            tar xf ${stage3} -C $out ./usr/bin/eselect ./usr/share/eselect
+            mv $out/usr/* $out/
+            rmdir $out/usr
+            substituteInPlace $out/bin/eselect --replace-fail '/usr/share/eselect' "$out/share/eselect"
+            install -Dm644 ${../LICENSES/GPL-2.0.txt} $out/share/licenses/eselect/COPYING
         patchShebangs $out/bin
       '';
 in
@@ -56,6 +57,9 @@ in
     # Object libraries consume generated core headers without a native CMake edge.
     preBuild = ''
       cmake --build . --target libpaludis_SE libpaludisutil_SE libpaludisutil_NN -j"$NIX_BUILD_CORES"
+    '';
+    postInstall = ''
+      install -Dm644 ../COPYING $out/share/licenses/paludis/COPYING
     '';
     enableParallelBuilding = true;
     meta.license = pkgs.lib.licenses.gpl2Only;
